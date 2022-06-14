@@ -34,13 +34,17 @@ def parse_arguments():
     return args
 
 
-def evaluate(model, dataset, criterion):
+def evaluate(model, dataset, criterion, device):
     model.eval()
 
     total_loss = 0.
 
     with torch.no_grad():
         for (anchor, positive, negative) in dataset:
+            anchor = anchor.to(device)
+            positive = positive.to(device)
+            negative = negative.to(device)
+
             out_anchor, out_positive, out_negative = model(
                 anchor, positive, negative)
             loss = criterion(out_anchor, out_positive, out_negative)
@@ -49,13 +53,17 @@ def evaluate(model, dataset, criterion):
     return total_loss / len(dataset)
 
 
-def train_step(model, dataset, criterion, optimizer, epoch, logger, log_interval):
+def train_step(model, dataset, criterion, optimizer, device, epoch, logger, log_interval):
     model.train()
 
     total_loss = 0.
 
     for batch, (anchor, positive, negative) in enumerate(tqdm(dataset)):
         optimizer.zero_grad()
+
+        anchor = anchor.to(device)
+        positive = positive.to(device)
+        negative = negative.to(device)
 
         out_anchor, out_positive, out_negative = model(
             anchor, positive, negative)
@@ -78,27 +86,39 @@ def train_step(model, dataset, criterion, optimizer, epoch, logger, log_interval
             total_loss = 0
 
 
+def get_run_config_dict(args):
+    config = {
+        'epochs': args.epochs,
+        'batch_size': args.batch_size,
+        'embedding_size': args.em,
+        'learning_rate': args.lr
+    }
+
+    return config
+
+
 def main():
     args = parse_arguments()
 
-    SEED = 42
+    SEED = args.seed
+    EMBEDDING_SIZE = args.em
+    EPOCHS = args.epochs
+    LEARNING_RATE = args.lr
+    BATCH_SIZE = args.batch_size
+    LOG_INTERVAL = args.log_interval
 
-    EMBEDDING_SIZE = 128
-    LEARNING_RATE = 1e-4
     MOMENTUM = 0.9
     WEIGHT_DECAY = 1e-5
-    BATCH_SIZE = 8
     TRIPLET_LOSS_MARGIN = 0.2
-    EPOCHS = 20
-    LOG_INTERVAL = 200
-
-    model_config = {}  # TODO
 
     torch.manual_seed(SEED)
 
+    model_config = get_run_config_dict(args)
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    train_dataset = HAM1000Dataset()
+    # TODO: train/val/test split
+    train_dataset = HAM1000Dataset('./dataset/HAM10000')
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE)
 
     model = ReidentificationModel(EMBEDDING_SIZE).to(device)
@@ -124,7 +144,7 @@ def main():
             epoch_start_time = time.time()
 
             train_step(model, train_loader, criterion,
-                       optimizer, epoch, logger, LOG_INTERVAL)
+                       optimizer, device, epoch, logger, LOG_INTERVAL)
 
             validation_loss = 42  # TODO
 

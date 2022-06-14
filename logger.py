@@ -13,3 +13,7 @@ class LoggerService:
     def log(self, dict_value):
         if self.use_wandb:
             wandb.log(dict_value)
+
+    def finish(self):
+        if self.use_wandb:
+            wandb.finish()

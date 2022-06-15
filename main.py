@@ -26,7 +26,7 @@ def parse_arguments():
                         help='initial learning rate')
     parser.add_argument('--epochs', type=int, default=20,
                         help='number of training epochs')
-    parser.add_argument('--batch_size', type=int, default=1,
+    parser.add_argument('--batch_size', type=int, default=32,
                         help='batch size')
     parser.add_argument('--seed', type=int, default=42,
                         help='random seed')

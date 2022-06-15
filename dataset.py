@@ -64,29 +64,10 @@ class HAM1000Dataset(Dataset):
         return len(self.dataset_metadata)
 
     def __getitem__(self, idx):
-        # select anchor class
-        anchor_class = random.choice(self.diagnoses)
-        
-        # select random instance of datapoint within anchor class
-        anchor_idx = random.randint(0, len(self.grouped_data[anchor_class]) - 1)
-        anchor_image_name = self.grouped_data[anchor_class][anchor_idx]
+        anchor_class, negative_class = random.choices(self.diagnoses, k=2)
 
-        # select different datapoint from the same class
-        positive_idx = random.randint(0, len(self.grouped_data[anchor_class]) - 1)
-        
-        # ensure that the index of the second image isn't the same as the first image
-        while positive_idx == anchor_idx:
-            positive_idx = random.randint(0, len(self.grouped_data[anchor_class]) - 1)
-        
-        positive_image_name = self.grouped_data[anchor_class][positive_idx]
-
-        negative_class = random.choice(self.diagnoses)
-
-        while negative_class == anchor_class:
-            negative_class = random.choice(self.diagnoses)
-
-        negative_idx = random.randint(0, len(self.grouped_data[negative_class]) - 1)
-        negative_image_name = self.grouped_data[negative_class][negative_idx]
+        anchor_image_name, positive_image_name = random.choices(self.grouped_data[anchor_class], k=2)
+        negative_image_name = random.choice(self.grouped_data[negative_class])
 
         anchor_image = self.load_image(anchor_image_name)
         positive_image = self.load_image(positive_image_name)

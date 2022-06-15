@@ -26,7 +26,7 @@ def parse_arguments():
                         help='initial learning rate')
     parser.add_argument('--epochs', type=int, default=20,
                         help='number of training epochs')
-    parser.add_argument('--batch_size', type=int, default=8,
+    parser.add_argument('--batch_size', type=int, default=1,
                         help='batch size')
     parser.add_argument('--seed', type=int, default=42,
                         help='random seed')
@@ -110,7 +110,6 @@ def main():
     LOG_INTERVAL = args.log_interval
 
     MOMENTUM = 0.9
-    WEIGHT_DECAY = 1e-5
     TRIPLET_LOSS_MARGIN = 0.2
 
     torch.manual_seed(SEED)
@@ -127,7 +126,7 @@ def main():
     model = ReidentificationModel(EMBEDDING_SIZE).to(device)
 
     optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE,
-                          momentum=MOMENTUM, weight_decay=WEIGHT_DECAY)
+                          momentum=MOMENTUM)
     criterion = nn.TripletMarginLoss(margin=TRIPLET_LOSS_MARGIN)
 
     logger = LoggerService(use_wandb=False)

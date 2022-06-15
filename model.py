@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torchvision
 
 
@@ -17,7 +18,8 @@ class ReidentificationModel(nn.Module):
     def forward_single(self, input):
         x = self.backbone(input)
         x = x.view(x.size()[0], -1)
-        return self.embedding(x)
+        emb = self.embedding(x)
+        return F.normalize(emb)
 
     def forward(self, anchor, positive, negative):
         output_anchor = self.forward_single(anchor)

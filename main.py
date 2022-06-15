@@ -22,15 +22,21 @@ def parse_arguments():
         description='Medical Image Reidentification')
     parser.add_argument('--em', type=int, default=128,
                         help='size of word embeddings')
-    parser.add_argument('--lr', type=float, default=0.0001,
+    parser.add_argument('--lr', type=float, default=0.05,
                         help='initial learning rate')
     parser.add_argument('--epochs', type=int, default=20,
                         help='number of training epochs')
+    parser.add_argument('--gamma', type=float, default=0.7, metavar='M',
+                        help='Learning rate step gamma')
+    parser.add_argument('--loss_margin', type=float, default=0.2,
+                        help='Triplet loss margin')
+    parser.add_argument('--step_size', type=int, default=1,
+                        help='Scheduler step size')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='batch size')
     parser.add_argument('--seed', type=int, default=42,
                         help='random seed')
-    parser.add_argument('--log_interval', type=int, default=200,
+    parser.add_argument('--log_interval', type=int, default=20,
                         help='report interval (in batches)')
     args = parser.parse_args()
     return args
@@ -80,7 +86,7 @@ def train_step(model, dataset, criterion, optimizer, device, epoch, logger, log_
         if batch % log_interval == 0 and batch > 0:
             avg_loss = total_loss / log_interval
 
-            total_batches = len(dataset.dataset)
+            total_batches = len(dataset)
 
             print(
                 f'Epoch {epoch} | {batch}/{total_batches} batches | avg. loss {avg_loss:5.2f}')
@@ -93,7 +99,9 @@ def get_run_config_dict(args):
         'epochs': args.epochs,
         'batch_size': args.batch_size,
         'embedding_size': args.em,
-        'learning_rate': args.lr
+        'learning_rate': args.lr,
+        'gamma': args.gamma,
+        'step_size': args.step_size
     }
 
     return config
@@ -108,9 +116,9 @@ def main():
     LEARNING_RATE = args.lr
     BATCH_SIZE = args.batch_size
     LOG_INTERVAL = args.log_interval
-
-    MOMENTUM = 0.9
-    TRIPLET_LOSS_MARGIN = 0.2
+    GAMMA = args.gamma
+    STEP_SIZE = args.step_size
+    TRIPLET_LOSS_MARGIN = args.loss_margin
 
     torch.manual_seed(SEED)
     np.random.seed(SEED)
@@ -125,8 +133,9 @@ def main():
 
     model = ReidentificationModel(EMBEDDING_SIZE).to(device)
 
-    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE,
-                          momentum=MOMENTUM)
+    optimizer = optim.Adagrad(model.parameters(), lr=LEARNING_RATE)
+    scheduler = optim.lr_scheduler.StepLR(
+        optimizer, step_size=STEP_SIZE, gamma=GAMMA)
     criterion = nn.TripletMarginLoss(margin=TRIPLET_LOSS_MARGIN)
 
     logger = LoggerService(use_wandb=False)
@@ -166,6 +175,7 @@ def main():
                 best_validation_loss = validation_loss
 
             logger.log({"Epoch": epoch})
+            scheduler.step()
     except KeyboardInterrupt:
         print('Stopped training...')
 

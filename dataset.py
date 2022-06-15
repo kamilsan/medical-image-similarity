@@ -49,9 +49,13 @@ class HAM1000Dataset(Dataset):
     def load_image(self, image_name):
         image_path = os.path.join(self.dataset_directory, 'images', f'{image_name}.jpg')
         image = Image.open(image_path)
-
-        # TODO: probably normalization (std, mean) and resize
-        transform = transforms.ToTensor()
+        
+        transform = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
         tensor = transform(image)
 
         return tensor

@@ -7,7 +7,7 @@ class ReidentificationModel(nn.Module):
     def __init__(self, embedding_size):
         super(ReidentificationModel, self).__init__()
 
-        self.backbone = torchvision.models.resnet50(pretrained=False)
+        self.backbone = torchvision.models.resnet18(pretrained=False)
         fc_in_features = self.backbone.fc.in_features
 
         self.backbone = torch.nn.Sequential(

@@ -2,7 +2,9 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
 from torch.utils.data import DataLoader
+
 
 from model import ReidentificationModel
 from dataset import HAM1000Dataset
@@ -112,6 +114,7 @@ def main():
     TRIPLET_LOSS_MARGIN = 0.2
 
     torch.manual_seed(SEED)
+    np.random.seed(SEED)
 
     model_config = get_run_config_dict(args)
 

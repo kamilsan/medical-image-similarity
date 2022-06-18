@@ -163,3 +163,4 @@ cython_debug/
 #.idea/
 
 HAM10000/
+models/

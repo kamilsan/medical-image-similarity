@@ -127,9 +127,13 @@ def main():
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # TODO: train/val/test split
-    train_dataset = HAM1000Dataset('./dataset/HAM10000')
+    train_dataset = HAM1000Dataset('./dataset/HAM10000', split='train')
+    test_dataset = HAM1000Dataset('./dataset/HAM10000', split='test')
+    val_dataset = HAM1000Dataset('./dataset/HAM10000', split='val')
+
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
 
     model = ReidentificationModel(EMBEDDING_SIZE).to(device)
 
@@ -157,7 +161,7 @@ def main():
             train_step(model, train_loader, criterion,
                        optimizer, device, epoch, logger, LOG_INTERVAL)
 
-            validation_loss = 42  # TODO
+            validation_loss = evaluate(model, val_loader, criterion, device)
 
             elapsed_time = time.time() - epoch_start_time
 
@@ -180,7 +184,7 @@ def main():
         print('Stopped training...')
 
     print('Finished training! Evaluating model on testing dataset...')
-    test_loss = 42  # evaluate(testing)
+    test_loss = evaluate(model, test_loader, criterion, device)
 
     print(
         f'Finished testing! Test loss: {test_loss:.2f}')

@@ -15,6 +15,7 @@ from tqdm import tqdm
 import time
 
 import os
+import random
 
 
 def parse_arguments():
@@ -122,6 +123,7 @@ def main():
 
     torch.manual_seed(SEED)
     np.random.seed(SEED)
+    random.seed(SEED)
 
     model_config = get_run_config_dict(args)
 

@@ -47,3 +47,7 @@ optional arguments:
                         report interval (in batches)
 
 ```
+
+## Inference and testing
+
+Notebook `embed.ipynb` contains some code for querying most similar images to those in testing set. 

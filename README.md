@@ -4,7 +4,7 @@
 
 Implementation of a simple model that finds the image of most similar skin condition to the one from query image. FaceNet-based architecture with triplet loss was trained on HAM10000 dataset to realize this task. ResNet18 was selected as a backbone model. 
 
-This was a project for Sementic Analysis of Images (2022) course.
+This was a project for Semantic Analysis of Images (2022) course.
 
 Utilized tools and technologies:
 
@@ -21,7 +21,7 @@ Triplet selection procedure was based on random choice - no triplet mining was u
 
 Example result (cherry-picked):
 
-![result](https://i.imgur.com/JirA2TZ.png)
+![result](./res/nn-query-example.png)
 
 For 200 randomly selected query images 56.5% images selected as closest ones were of the same class (had the same skin condition).
 
@@ -40,7 +40,7 @@ Results were obtained using model trained with following parameters:
 * Triplet loss margin: 0.2
 * Seed: 42
 
-![traning](https://i.imgur.com/WWUJmbl.png)
+![traning](./res/training.png)
 
 ## Quick start
 
@@ -92,7 +92,7 @@ optional arguments:
 
 ## Inference and testing
 
-Notebook `embed.ipynb` contains some code for querying most similar images to those in testing set. Query images are choosen from validation dataset.
+Notebook `embed.ipynb` contains some code for querying most similar images to those in testing set. Query images are chosen from validation dataset.
 
 In order to guarantee that dataset split is the same as during training phase, same random number generator seed should be used during embedding and querying as was used before training. 
 
